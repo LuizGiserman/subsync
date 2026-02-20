@@ -1,0 +1,19 @@
+1
+00:00:01,000 --> 00:00:02,200
+Hello, world.
+
+2
+00:00:03,000 --> 00:00:05,500
+This is a medium subtitle line.
+
+3
+00:00:06,000 --> 00:00:11,000
+And this one is much longer, taking more than five seconds to display properly.
+
+4
+00:00:12,000 --> 00:00:12,800
+Short.
+
+5
+00:00:13,500 --> 00:00:16,000
+Another medium length line here.
