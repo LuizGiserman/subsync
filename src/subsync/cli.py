@@ -15,6 +15,22 @@ from .align import align
 # Formats that pysubs2 can write
 _VALID_FORMATS = {"srt", "ass", "vtt"}
 
+# Encoding fallback chain for legacy subtitle files
+_ENCODING_FALLBACKS = ["utf-8", "utf-8-sig", "cp1252", "latin-1"]
+
+
+def _load_file(path: Path, encoding: str | None = None) -> pysubs2.SSAFile:
+    """Load a subtitle file, trying multiple encodings if needed."""
+    candidates = [encoding] if encoding else _ENCODING_FALLBACKS
+    last_exc: Exception | None = None
+    for enc in candidates:
+        try:
+            return pysubs2.load(str(path), encoding=enc)
+        except (UnicodeDecodeError, UnicodeError) as exc:
+            last_exc = exc
+            continue
+    raise last_exc  # type: ignore[misc]
+
 # Map common file extensions to pysubs2 format strings
 _EXT_TO_FORMAT: dict[str, str] = {
     ".srt": "srt",
@@ -85,13 +101,13 @@ def run(args: list[str] | None = None) -> int:
 
     # --- Load files ---
     try:
-        src_file: pysubs2.SSAFile = pysubs2.load(str(source_path))
+        src_file: pysubs2.SSAFile = _load_file(source_path)
     except Exception as exc:
         print(f"subsync: error loading source file: {exc}", file=sys.stderr)
         return 1
 
     try:
-        tgt_file: pysubs2.SSAFile = pysubs2.load(str(target_path))
+        tgt_file: pysubs2.SSAFile = _load_file(target_path)
     except Exception as exc:
         print(f"subsync: error loading target file: {exc}", file=sys.stderr)
         return 1
